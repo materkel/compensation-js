@@ -1,15 +1,18 @@
 import chai from 'chai';
 import compensationLib from '../index';
 import redis from 'redis';
+
 const db = redis.createClient();
 const expect = chai.expect;
 
 describe('The compensation library', () => {
+  /********* Start Preparation Code **********/
 	function createListing(data) {
 		return true;
 	}
 	const config = { create: createListing }
 	const compensation = compensationLib(config);
+  /********* End Preparation Code **********/
 
 	it('should be initialized', () => {
 		expect(compensation).to.be.an('object');
@@ -34,6 +37,7 @@ describe('The compensation library', () => {
 });
 
 describe('A compensation', () => {
+  /********* Start Preparation Code **********/
   function createListing(data) {
     expect(data).to.be.defined;
     expect(data).to.be.an('object');
@@ -48,6 +52,7 @@ describe('A compensation', () => {
     update: updateListing
   };
   let compensation = compensationLib(config);
+  /********* End Preparation Code **********/
 
 	it('should be added to the database', done => {
     compensation.add('compensationId', 'create', { id: 1, name: 'yo' });
@@ -92,7 +97,7 @@ describe('A compensation', () => {
   it('should return a promise when added', done => {
     compensation
       .add('compensationIdxyz', 'create', { id: 1, name: 'yo' })
-      .then(res => done())
+      .then(() => done())
       .catch(err => done());
   });
 
