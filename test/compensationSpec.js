@@ -41,11 +41,13 @@ describe('A compensation', () => {
   function createListing(data) {
     expect(data).to.be.defined;
     expect(data).to.be.an('object');
+    return Promise.resolve(true);
   }
   function updateListing(id, data) {
     expect(id).to.be.defined;
     expect(data).to.be.defined;
     expect(data).to.be.an('object');
+    return Promise.resolve(true);
   }
   let config = {
     create: createListing,
