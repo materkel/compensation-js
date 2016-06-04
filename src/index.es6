@@ -7,29 +7,42 @@ module.exports = (config = {}) => {
     config,
     add: (id, action, ...parameters) => {
       const key = id.toString();
-      const data = JSON.stringify({ action, parameters });
+      const data = { action, parameters };
       return new Promise((resolve, reject) => {
-        client.set(key, data, function(err, res) {
+        client.set(key, JSON.stringify(data), (err, res) => {
           if (!err) {
-            resolve();
+            resolve(data);
+          } else {
+            reject(err);
           }
-          reject(err);
         });
       });
     },
-    run: (id) => {
+    remove: id => {
       const key = id.toString();
       return new Promise((resolve, reject) => {
-        client.get(key, function(err, data) {
+        client.del(key, (err, res) => {
+          if (!err) {
+            resolve(res);
+          } else {
+            reject(err);
+          }
+        });
+      });
+    },
+    run: id => {
+      const key = id.toString();
+      return new Promise((resolve, reject) => {
+        client.get(key, (err, data) => {
           if (!err) {
             const { action, parameters } = JSON.parse(data);
             const fn = config[action];
             // Call compensating action
             fn(...parameters)
-              .then(res => {
-                resolve(res);
-              })
+              .then(res => resolve(res))
               .catch(err => reject(err));
+          } else {
+            reject(err);
           }
         });
       });

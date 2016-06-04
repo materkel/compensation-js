@@ -21,13 +21,26 @@ module.exports = function () {
       }
 
       var key = id.toString();
-      var data = JSON.stringify({ action: action, parameters: parameters });
+      var data = { action: action, parameters: parameters };
       return new Promise(function (resolve, reject) {
-        client.set(key, data, function (err, res) {
+        client.set(key, JSON.stringify(data), function (err, res) {
           if (!err) {
-            resolve();
+            resolve(data);
+          } else {
+            reject(err);
           }
-          reject(err);
+        });
+      });
+    },
+    remove: function remove(id) {
+      var key = id.toString();
+      return new Promise(function (resolve, reject) {
+        client.del(key, function (err, res) {
+          if (!err) {
+            resolve(res);
+          } else {
+            reject(err);
+          }
         });
       });
     },
@@ -44,10 +57,12 @@ module.exports = function () {
             var fn = config[action];
             // Call compensating action
             fn.apply(undefined, _toConsumableArray(parameters)).then(function (res) {
-              resolve(res);
+              return resolve(res);
             }).catch(function (err) {
               return reject(err);
             });
+          } else {
+            reject(err);
           }
         });
       });
