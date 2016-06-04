@@ -24,6 +24,7 @@ module.exports = (config = {}) => {
           if (!err) {
             const { action, parameters } = JSON.parse(data);
             const fn = config[action];
+            // Call compensating action
             fn(...parameters)
               .then(res => {
                 resolve(res);

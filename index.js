@@ -42,6 +42,7 @@ module.exports = function () {
             var parameters = _JSON$parse.parameters;
 
             var fn = config[action];
+            // Call compensating action
             fn.apply(undefined, _toConsumableArray(parameters)).then(function (res) {
               resolve(res);
             }).catch(function (err) {
