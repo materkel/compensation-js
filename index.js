@@ -151,8 +151,9 @@ module.exports = function compensation(_ref) {
   function runId(key) {
     var _this2 = this;
 
+    id = this.id ? this.id : id;
     return new Promise(function (resolve, reject) {
-      client.hget(key, _this2.id, function (err, data) {
+      client.hget(key, id, function (err, data) {
         if (!err) {
           var _JSON$parse2 = JSON.parse(data);
 
@@ -184,10 +185,9 @@ module.exports = function compensation(_ref) {
   }
 
   function runIdMultiple(key) {
-    var _this3 = this;
-
+    id = this.id ? this.id : id;
     return new Promise(function (resolve, reject) {
-      client.hget(key, _this3.id, function (err, data) {
+      client.hget(key, id, function (err, data) {
         if (!err) {
           (function () {
             var promises = [];
@@ -202,7 +202,7 @@ module.exports = function compensation(_ref) {
             });
             Promise.all(promises).then(function (res) {
               // Remove id on compensation success
-              remove(key, _this3.id).then(function (_res) {
+              remove(key, id).then(function (_res) {
                 // Remove key when 0 ids are left
                 if (_res === 0) {
                   remove(key).then(function (__res) {
