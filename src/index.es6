@@ -33,9 +33,10 @@ module.exports = function compensation({
   }
 
   function addToId(key, action, ...parameters) {
+    id = this.id ? this.id : id;
     const data = { action, parameters };
     return new Promise((resolve, reject) => {
-      client.hset(key, this.id, JSON.stringify(data), (err, res) => {
+      client.hset(key, id, JSON.stringify(data), (err, res) => {
         if (!err) {
           resolve(res);
         } else {

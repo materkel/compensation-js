@@ -54,11 +54,10 @@ module.exports = function compensation(_ref) {
       parameters[_key2 - 2] = arguments[_key2];
     }
 
-    var _this = this;
-
+    id = this.id ? this.id : id;
     var data = { action: action, parameters: parameters };
     return new Promise(function (resolve, reject) {
-      client.hset(key, _this.id, JSON.stringify(data), function (err, res) {
+      client.hset(key, id, JSON.stringify(data), function (err, res) {
         if (!err) {
           resolve(res);
         } else {
@@ -149,7 +148,7 @@ module.exports = function compensation(_ref) {
   }
 
   function runId(key) {
-    var _this2 = this;
+    var _this = this;
 
     id = this.id ? this.id : id;
     return new Promise(function (resolve, reject) {
@@ -164,7 +163,7 @@ module.exports = function compensation(_ref) {
           // Call compensating action
           fn.apply(undefined, _toConsumableArray(parameters)).then(function (res) {
             // Remove id on compensation success
-            remove(key, _this2.id).then(function (_res) {
+            remove(key, _this.id).then(function (_res) {
               // Remove key when 0 ids are left
               if (_res === 0) {
                 remove(key).then(function (__res) {
