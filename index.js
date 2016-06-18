@@ -89,6 +89,7 @@ module.exports = function compensation(_ref) {
             }
           });
         } else {
+          client.unwatch(key);
           reject(err);
         }
       });
@@ -121,6 +122,7 @@ module.exports = function compensation(_ref) {
 
   function run(key) {
     return new Promise(function (resolve, reject) {
+      client.watch(key);
       client.get(key, function (err, data) {
         if (!err) {
           var _JSON$parse = JSON.parse(data);
@@ -135,12 +137,15 @@ module.exports = function compensation(_ref) {
             remove(key)
             // Return result of compensation
             .then(function (_res) {
+              client.unwatch(key);
               resolve(res);
             });
           }).catch(function (err) {
-            return reject(err);
+            client.unwatch(key);
+            reject(err);
           });
         } else {
+          client.unwatch(key);
           reject(err);
         }
       });
@@ -152,6 +157,7 @@ module.exports = function compensation(_ref) {
 
     id = this.id ? this.id : id;
     return new Promise(function (resolve, reject) {
+      client.watch(key);
       client.hget(key, id, function (err, data) {
         if (!err) {
           var _JSON$parse2 = JSON.parse(data);
@@ -164,6 +170,7 @@ module.exports = function compensation(_ref) {
           fn.apply(undefined, _toConsumableArray(parameters)).then(function (res) {
             // Remove id on compensation success
             remove(key, _this.id).then(function (_res) {
+              client.unwatch();
               // Remove key when 0 ids are left
               if (_res === 0) {
                 remove(key).then(function (__res) {
@@ -174,7 +181,8 @@ module.exports = function compensation(_ref) {
               }
             });
           }).catch(function (err) {
-            return reject(err);
+            client.unwatch();
+            reject(err);
           });
         } else {
           reject(err);
@@ -186,6 +194,7 @@ module.exports = function compensation(_ref) {
   function runIdMultiple(key) {
     id = this.id ? this.id : id;
     return new Promise(function (resolve, reject) {
+      client.watch(key);
       client.hget(key, id, function (err, data) {
         if (!err) {
           (function () {
@@ -202,6 +211,7 @@ module.exports = function compensation(_ref) {
             Promise.all(promises).then(function (res) {
               // Remove id on compensation success
               remove(key, id).then(function (_res) {
+                client.unwatch();
                 // Remove key when 0 ids are left
                 if (_res === 0) {
                   remove(key).then(function (__res) {
@@ -212,7 +222,8 @@ module.exports = function compensation(_ref) {
                 }
               });
             }).catch(function (err) {
-              return reject(err);
+              client.unwatch();
+              reject(err);
             });
           })();
         } else {

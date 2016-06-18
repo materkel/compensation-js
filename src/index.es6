@@ -64,6 +64,7 @@ module.exports = function compensation({
             }
           });
         } else {
+          client.unwatch(key);
           reject(err);
         }
       });
@@ -94,31 +95,38 @@ module.exports = function compensation({
 
   function run(key) {
     return new Promise((resolve, reject) => {
+      client.watch(key);
       client.get(key, (err, data) => {
-          if (!err) {
-            const { action, parameters } = JSON.parse(data);
-            const fn = compensations[action];
-            // Call compensating action
-            fn(...parameters)
-              .then(res => {
-                // Remove key on compensation success
-                remove(key)
-                  // Return result of compensation
-                  .then(_res => {
-                    resolve(res);
-                  });
-              })
-              .catch(err => reject(err));
-          } else {
-            reject(err);
-          }
-        });
+        if (!err) {
+          const { action, parameters } = JSON.parse(data);
+          const fn = compensations[action];
+          // Call compensating action
+          fn(...parameters)
+            .then(res => {
+              // Remove key on compensation success
+              remove(key)
+                // Return result of compensation
+                .then(_res => {
+                  client.unwatch(key);
+                  resolve(res);
+                });
+            })
+            .catch(err => {
+              client.unwatch(key);
+              reject(err);
+            });
+        } else {
+          client.unwatch(key);
+          reject(err);
+        }
+      });
     });
   }
 
   function runId(key) {
     id = this.id ? this.id : id;
     return new Promise((resolve, reject) => {
+      client.watch(key);
       client.hget(key, id, (err, data) => {
         if (!err) {
           const { action, parameters } = JSON.parse(data);
@@ -129,6 +137,7 @@ module.exports = function compensation({
               // Remove id on compensation success
               remove(key, this.id)
                 .then(_res => {
+                  client.unwatch();
                   // Remove key when 0 ids are left
                   if (_res === 0) {
                     remove(key).then(__res => resolve(res));
@@ -137,7 +146,10 @@ module.exports = function compensation({
                   }
                 });
             })
-            .catch(err => reject(err));
+            .catch(err => {
+              client.unwatch();
+              reject(err);
+            });
         } else {
           reject(err);
         }
@@ -148,6 +160,7 @@ module.exports = function compensation({
   function runIdMultiple(key) {
     id = this.id ? this.id : id;
     return new Promise((resolve, reject) => {
+      client.watch(key);
       client.hget(key, id, (err, data) => {
         if (!err) {
           let promises = [];
@@ -164,6 +177,7 @@ module.exports = function compensation({
               // Remove id on compensation success
               remove(key, id)
                 .then(_res => {
+                  client.unwatch();
                   // Remove key when 0 ids are left
                   if (_res === 0) {
                     remove(key).then(__res => resolve(res));
@@ -172,7 +186,10 @@ module.exports = function compensation({
                   }
                 });
             })
-            .catch(err => reject(err));
+            .catch(err => {
+              client.unwatch();
+              reject(err);
+            });
         } else {
           reject(err);
         }
