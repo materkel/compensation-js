@@ -8,40 +8,7 @@ library for saving and running compensating actions. Compensating actions are pe
 npm install mfressdorf/compensation-js
 ```
 
-## Configuration
-compensation-js exposes the same methods (add, remove, run) with different implications, dependend on the initial configuration
-
-```javascript
-const compensationLib = require('compensation-js');
-const compensation = compensationLib({ compensations, redisOptions, ... });
-```
-
-Set a static service id, used for all futher added compensations (this option is important if multiple services share the same redis instance)
-
-```javascript
-const compensation = compensationLib({ compensations, redisOptions, id: 'serviceA' });
-compensation.add('compensationKey', nameOfCompensation, parameters);
-```
-
-You also can inject this id as second parameter, or omitt it alltogether
-
-```javascript
-const compensation = compensationLib({ compensations, redisOptions, injectId: true });
-compensation.add('compensationKey', 'serviceA', nameOfCompensation, parameters);
-```
-
-```javascript
-const compensation = compensationLib({ compensations, redisOptions });
-compensation.add('compensationKey', nameOfCompensation, parameters);
-```
-
-Use the multiple = true if you want to support saving multiple compensations for the same service id.
-
-```javascript
-const compensation = compensationLib({ compensations, redisOptions, id: 'serviceA', multiple: true });
-compensation.add('compensationKey', nameOfCompensation, parameters);
-compensation.add('compensationKey', nameOfCompensation2, parameters);
-```
+## Usage
 ...
 
 ## Example
